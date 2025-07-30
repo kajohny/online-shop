@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 
 class ProductController extends Controller
 {
@@ -35,7 +37,13 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
+            'price' => 'required|numeric',
+            'image' => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('products', 'public');
+        }
 
         $product = Product::create($data);
 
@@ -59,7 +67,21 @@ class ProductController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'category_id' => 'sometimes|required|exists:categories,id',
+            'price' => 'sometimes|numeric',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            $data['image'] = $request->file('image')->store('products', 'public');
+
+            $product->update($data);
+
+            return response()->json($product, 200);
+        }
 
         $product->update($data);
 
@@ -71,6 +93,10 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
         $product->delete();
 
         return response()->json(['message' => 'Product deleted']);
