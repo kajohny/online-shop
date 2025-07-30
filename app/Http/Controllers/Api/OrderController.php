@@ -16,6 +16,16 @@ class OrderController extends Controller
         return Order::with(['items', 'customer'])->get();
     }
 
+    public function myOrders(Request $request)
+    {
+        return $request->user()->orders()->with('items.product')->get();
+    }
+
+    public function myOrder(Request $request, $id)
+    {
+        return $request->user()->orders()->with('items.product')->findOrFail($id);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
