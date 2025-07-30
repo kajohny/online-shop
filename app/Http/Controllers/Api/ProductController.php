@@ -73,6 +73,6 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return response()->json(null, 204);
+        return response()->json(['message' => 'Product deleted']);
     }
 }

@@ -13,7 +13,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        return Order::with(['items', 'customer'])->get();
+        return Order::with(['items.product', 'customer'])->get();
     }
 
     public function myOrders(Request $request)
@@ -22,7 +22,7 @@ class OrderController extends Controller
     }
 
     public function myOrder(Request $request, $id)
-    {
+    {   
         return $request->user()->orders()->with('items.product')->findOrFail($id);
     }
 
@@ -46,7 +46,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        return $order->load(['items', 'customer']);
+        return $order->load(['items.product', 'customer']);
     }
 
     /**
