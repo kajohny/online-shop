@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -32,13 +33,33 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'status' => 'required|string',
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
         ]);
 
-        $order = Order::create($data);
+        $order = $request->user()->orders()->create([
+            'status' => 'pending',
+            'total_price' => 0,
+        ]);
 
-        return response()->json($order, 201);
+        $total = 0;
+
+        foreach ($data['items'] as $item) {
+            $product = Product::findOrFail($item['product_id']);
+
+            $order->items()->create([
+                'product_id' => $product->id,
+                'quantity' => $item['quantity'],
+                'price' => $product->price,
+            ]);
+
+            $total += $product->price * $item['quantity'];
+        }
+
+        $order->update(['total_price' => $total]);
+
+        return response()->json($order->load('items.product'), 201);
     }
 
     /**

@@ -17,10 +17,8 @@ Route::get('/products/{product}', [ProductController::class,'show']);
 Route::middleware(['auth:sanctum', 'role:user'])->group(function () {
     Route::post('/orders', [OrderController::class, 'store']);
 
-    Route::get('orders', [OrderController::class, 'myOrders']);
-    Route::get('orders/{id}', [OrderController::class, 'myOrder']);
-
-    Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('/my-orders', [OrderController::class, 'myOrders']);
+    Route::get('/my-order/{id}', [OrderController::class, 'myOrder']);
 });
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
@@ -28,8 +26,11 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 
-    Route::get('orders', [OrderController::class, 'index']);
-    Route::get('orders/{order}', [OrderController::class, 'show']);
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{order}', [OrderController::class, 'show']);
 
-    Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('/customers', [CustomerController::class, 'index']);
+    Route::get('customers/{customer}', [CustomerController::class, 'show']);
 });
+
+Route::middleware(['auth:sanctum'])->post('/logout', [AuthController::class, 'logout']);
