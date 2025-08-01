@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
+use App\Mail\OrderPlacedEmail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -58,6 +60,8 @@ class OrderController extends Controller
         }
 
         $order->update(['total_price' => $total]);
+
+        Mail::to($request->user())->queue(new OrderPlacedEmail($order));
 
         return response()->json($order->load('items.product'), 201);
     }
