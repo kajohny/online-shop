@@ -25,6 +25,20 @@ class ProductController extends Controller
             $query->where('price', '<=', $request->query('max_price'));
         }
 
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->query('category_id'));
+        }
+
+        if ($request->has('search')) {
+            $search = $request->query('search');
+            $query->where('name', 'ILIKE', "%$search%");
+        }
+
+        if ($request->has('sort_price')) {
+            $direction = strtolower($request->query('sort_price')) === 'desc' ? 'desc' : 'asc';
+            $query->orderBy('price', $direction);
+        }
+
         return $query->with('category')->get();
     }
 
